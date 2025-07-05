@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Todo List</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 50px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Todolist</h1>
+
+  <form id="form" class="form">
+    <div class="todo">
+      <input type="text" id="inputtodo" name="task" placeholder="Enter task" /><br />
+      <button type="submit" id="btn">Submit</button>
+    </div>
+  </form>
+  <section>
+    <ul id="todolist">
+    
+    </ul>
+  </section>
+
+  <script>
+    const form = document.getElementById("form");
+    const input = document.getElementById("inputtodo");
+    const list = document.getElementById("todolist")
+
+    let todo = {};
+
+    // capture input on typing
+    form.addEventListener("input", (e) => {
+      todo[e.target.name] = e.target.value;
+      console.log("Live Input:", todo);
+    });
+
+    // on submit, prevent reload and log final todo
+    form.addEventListener("submit", async(e) => {
+      e.preventDefault();
+      let res = await fetch("/todo",{
+        method: "POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(todo)
+      })
+      let data = await res.json()
+      console.log(data);
+      
+      input.value = "";
+      fetchtodo();
+    });
+    async function fetchtodo() {
+        try {
+            const res = await fetch("/alltodo");
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
+            const data = await res.json();
+
+            list.innerHTML = "";
+            data.map((t, i) => {
+            const li = document.createElement("li");
+            li.textContent = `${i + 1}. ${t.task}`;
+            list.appendChild(li);
+            });
+        } catch (err) {
+            console.error(err);
+            list.innerHTML = "<li>Could not load todos 😢</li>";
+        }
+    }
+
+
+    fetchtodo();
+  </script>
+</body>
+</html>

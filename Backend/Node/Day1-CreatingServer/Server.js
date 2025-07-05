@@ -14,7 +14,7 @@ const app = http.createServer((req,res)=>{
         res.end();
     }
     else if(method == "GET" && url == "/tiger.jpg" ){
-        let data = fs.readFileSync("./Assets/download.jpg","utf-8")
+        let data = fs.readFileSync("./Assets/download.jpg")
         res.write(data);
         res.end();
     }
